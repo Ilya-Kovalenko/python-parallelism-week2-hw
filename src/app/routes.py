@@ -90,6 +90,7 @@ async def prepare_checkout(
 ) -> CheckoutResponse:
     """Временно бронирует места за клиентом, возвращает итоговую стоимость
         и возможность страховки."""
+
     # TODO: создать бронь для выбранных мест через SELECT FOR UPDATE, и посчитать базовую стоимость.
     # TODO: конкурентно запросить Payment API и Protection API для расчета checkout.
     ...
