@@ -93,7 +93,7 @@ class Booking(Base):
         server_default=BookingStatus.pending_payment.value,
         index=True,
     )
-    reserved_until: Mapped[datetime] = mapped_column(DateTime(), index=True)
+    reserved_until: Mapped[datetime] = mapped_column(DateTime(), index=True) # TODO: понять в каком часовом поясе храним?
 
 
 class EventSeat(Base):

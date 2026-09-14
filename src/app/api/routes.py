@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, status
 
-from app.schemas import (
+from app.api.schemas import (
     BookingCreate,
     CheckoutResponse,
     EventCreate,

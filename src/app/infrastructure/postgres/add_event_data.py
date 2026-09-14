@@ -1,14 +1,13 @@
 from datetime import datetime, timedelta
 
 from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db import engine
+from app.infrastructure.postgres.db import DatabaseManager
 from app.models import Event, EventSeat, Location, Seat
 
 
-async def add_event_data_to_db() -> None:
-    async with AsyncSession(engine, expire_on_commit=False) as db:
+async def add_event_data_to_db(db_manager: DatabaseManager) -> None:
+    async with db_manager.session() as db:
         async with db.begin():
             if await db.scalar(select(func.count(Location.id))):
                 print("Тестовые данные уже существуют")
@@ -56,9 +55,3 @@ async def add_event_data_to_db() -> None:
             )
 
     print("Тестовые данные созданы")
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    asyncio.run(add_event_data_to_db())
