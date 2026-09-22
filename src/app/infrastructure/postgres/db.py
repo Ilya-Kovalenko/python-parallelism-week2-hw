@@ -21,16 +21,19 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-
-from app.infrastructure.repositories import EventRepo
+from app.application.interfaces.unit_of_work import DatabaseManager, UnitOfWork
+from app.application.interfaces.repositories import BookingRepository, EventRepository, EventSeatsRepository
+from app.infrastructure.postgres.repositories import PostgresBookingRepository, PostgresEventRepository, PostgresEventSeatsRepository
 
 
 @dataclass(frozen=True, slots=True)
-class UnitOfWork:
-    event_repo: EventRepo
+class SqlAlchemyUnitOfWork(UnitOfWork):
+    booking_repository: BookingRepository
+    event_repository: EventRepository
+    event_seats_repository: EventSeatsRepository
 
 
-class DatabaseManager:
+class SqlAlchemyDatabaseManager(DatabaseManager):
     def __init__(self, config: PostgresConfig) -> None:
         self._engine: AsyncEngine = create_async_engine(
             config.url,
@@ -52,8 +55,10 @@ class DatabaseManager:
     @asynccontextmanager
     async def transaction(self) -> AsyncIterator[UnitOfWork]:  # TODO: а тут конкретная транзакция и полный её откат при ошибке
         async with self._session_factory.begin() as session:
-            yield UnitOfWork(
-                event_repo=EventRepo(session),
+            yield SqlAlchemyUnitOfWork(
+                booking_repository=PostgresBookingRepository(session),
+                event_repository=PostgresEventRepository(session),
+                event_seats_repository=PostgresEventSeatsRepository(session),
             )
 
     async def close(self) -> None:

@@ -1,25 +1,12 @@
-import enum
-from datetime import datetime, timezone
+from datetime import datetime
 
+from app.domain.enums import BookingStatus, SeatStatus
 from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
     pass
-
-
-class SeatStatus(str, enum.Enum):
-    available = "available"
-    reserved = "reserved"
-    sold = "sold"
-
-
-class BookingStatus(str, enum.Enum):
-    pending_payment = "pending_payment"
-    paid = "paid"
-    cancelled = "cancelled"
-    expired = "expired"
 
 
 class Location(Base):
@@ -89,8 +76,8 @@ class Booking(Base):
     with_protection: Mapped[bool]
     status: Mapped[BookingStatus] = mapped_column(
         SAEnum(BookingStatus, name="booking_status"),
-        default=BookingStatus.pending_payment,
-        server_default=BookingStatus.pending_payment.value,
+        default=BookingStatus.PENDING_PAYMENT,
+        server_default=BookingStatus.PENDING_PAYMENT.value,
         index=True,
     )
     reserved_until: Mapped[datetime] = mapped_column(DateTime(), index=True) # TODO: понять в каком часовом поясе храним?
@@ -110,8 +97,8 @@ class EventSeat(Base):
     price: Mapped[int]
     status: Mapped[SeatStatus] = mapped_column(
         SAEnum(SeatStatus, name="seat_status"),
-        default=SeatStatus.available,
-        server_default=SeatStatus.available.value,
+        default=SeatStatus.AVAILABLE,
+        server_default=SeatStatus.AVAILABLE.value,
         index=True,
     )
     reserved_until: Mapped[datetime | None] = mapped_column(DateTime())

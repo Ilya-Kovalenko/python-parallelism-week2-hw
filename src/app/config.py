@@ -44,10 +44,26 @@ class RedisConfig(BaseModel):
         return f"redis://:{password}@{self.host}:{self.port}/{self.database}"
 
 
+class PaymentApiConfig(BaseModel):
+    base_url: str
+    timeout: float = 5.0
+
+
+class ProtectionApiConfig(BaseModel):
+    base_url: str
+    timeout: float = 5.0
+
+
+class ConnectorsConfig(BaseModel):
+    payment: PaymentApiConfig
+    protection: ProtectionApiConfig
+
+
 class Settings(BaseSettings):
     app: AppConfig
     postgres: PostgresConfig
     redis: RedisConfig
+    connectors: ConnectorsConfig
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -2,11 +2,11 @@ from datetime import datetime, timedelta
 
 from sqlalchemy import func, select
 
-from app.infrastructure.postgres.db import DatabaseManager
-from app.models import Event, EventSeat, Location, Seat
+from app.infrastructure.postgres.db import SqlAlchemyDatabaseManager
+from app.infrastructure.postgres.models import Event, EventSeat, Location, Seat
 
 
-async def add_event_data_to_db(db_manager: DatabaseManager) -> None:
+async def add_event_data_to_db(db_manager: SqlAlchemyDatabaseManager) -> None:
     async with db_manager.session() as db:
         async with db.begin():
             if await db.scalar(select(func.count(Location.id))):
