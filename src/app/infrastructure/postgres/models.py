@@ -1,8 +1,13 @@
+import enum
 from datetime import datetime
 
 from app.domain.enums import BookingStatus, SeatStatus
 from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+
+def _enum_values(enum_cls: type[enum.Enum]) -> list[str]:
+    return [member.value for member in enum_cls]
 
 
 class Base(DeclarativeBase):
@@ -77,7 +82,7 @@ class Booking(Base):
     protection_price: Mapped[int | None]
     with_protection: Mapped[bool]
     status: Mapped[BookingStatus] = mapped_column(
-        SAEnum(BookingStatus, name="booking_status"),
+        SAEnum(BookingStatus, name="booking_status", values_callable=_enum_values),
         default=BookingStatus.PENDING_PAYMENT,
         server_default=BookingStatus.PENDING_PAYMENT.value,
         index=True,
@@ -96,7 +101,7 @@ class EventSeat(Base):
     seat_id: Mapped[int] = mapped_column(ForeignKey("seats.id"), index=True)
     price: Mapped[int]
     status: Mapped[SeatStatus] = mapped_column(
-        SAEnum(SeatStatus, name="seat_status"),
+        SAEnum(SeatStatus, name="seat_status", values_callable=_enum_values),
         default=SeatStatus.AVAILABLE,
         server_default=SeatStatus.AVAILABLE.value,
         index=True,
