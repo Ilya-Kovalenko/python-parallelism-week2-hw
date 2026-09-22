@@ -11,7 +11,9 @@ from app.application.dto import SalesStats
 
 
 class PostgresBookingRepository(BaseRepository, BookingRepository):
-    async def create_booking(self, event_id: int, user_id: int, reserved_until: datetime) -> BookingEntity:
+    async def create_booking(
+        self, event_id: int, user_id: int, reserved_until: datetime
+    ) -> BookingEntity:
         booking = Booking(
             event_id=event_id,
             user_id=user_id,
@@ -19,7 +21,7 @@ class PostgresBookingRepository(BaseRepository, BookingRepository):
             payment_commission=0,
             protection_price=None,
             with_protection=False,
-            reserved_until=reserved_until
+            reserved_until=reserved_until,
         )
 
         self.session.add(booking)
@@ -63,13 +65,13 @@ class PostgresBookingRepository(BaseRepository, BookingRepository):
     @staticmethod
     def _to_domain(booking: Booking) -> BookingEntity:
         return BookingEntity(
-            id = booking.id,
-            event_id = booking.event_id,
-            user_id = booking.user_id,
-            amount = booking.amount,
-            payment_commission = booking.payment_commission,
-            protection_price = booking.protection_price,
-            with_protection = booking.with_protection,
-            status = booking.status,
-            reserved_until = booking.reserved_until
+            id=booking.id,
+            event_id=booking.event_id,
+            user_id=booking.user_id,
+            amount=booking.amount,
+            payment_commission=booking.payment_commission,
+            protection_price=booking.protection_price,
+            with_protection=booking.with_protection,
+            status=booking.status,
+            reserved_until=booking.reserved_until,
         )

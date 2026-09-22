@@ -22,5 +22,5 @@ class PostgresEventRepository(BaseRepository, EventRepository):
             description=event.description,
             category=event.category,
             starts_at=event.starts_at,
-            base_price=event.base_price
+            base_price=event.base_price,
         )

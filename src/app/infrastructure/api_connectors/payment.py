@@ -1,5 +1,8 @@
 from app.infrastructure.api_connectors.base import BaseHTTPConnector
-from app.application.interfaces.connectors.payment_connector import PaymentConnector, Payment
+from app.application.interfaces.connectors.payment_connector import (
+    PaymentConnector,
+    Payment,
+)
 from datetime import datetime
 
 
@@ -28,5 +31,7 @@ class HttpxPaymentConnector(BaseHTTPConnector, PaymentConnector):
             commission=int(data["commission"]),
             total=int(data["total"]),
             payment_methods=list(data["payment_methods"]),
-            expires_at=datetime.fromisoformat(expires_at_raw) if expires_at_raw else None
+            expires_at=datetime.fromisoformat(expires_at_raw)
+            if expires_at_raw
+            else None,
         )

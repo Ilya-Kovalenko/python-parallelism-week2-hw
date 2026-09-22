@@ -29,9 +29,7 @@ class InvalidBookingStateError(DomainError):
     def __init__(self, booking_id: int, status: str) -> None:
         self.booking_id = booking_id
         self.status = status
-        super().__init__(
-            f"Бронь {booking_id} нельзя изменить в статусе {status}"
-        )
+        super().__init__(f"Бронь {booking_id} нельзя изменить в статусе {status}")
 
 
 class BookingExpiredError(DomainError):

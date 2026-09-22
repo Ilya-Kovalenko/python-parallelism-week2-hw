@@ -52,5 +52,7 @@ async def calculate(payload: ProtectionCalculation) -> dict:
         "available": available,
         "price": price,
         "covered_amount": payload.ticket_amount if available else 0,
-        "description": "Возврат стоимости билетов при страховом случае" if available else None,
+        "description": "Возврат стоимости билетов при страховом случае"
+        if available
+        else None,
     }

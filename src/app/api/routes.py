@@ -86,9 +86,9 @@ async def create_event(payload: EventCreate, organizer_id: CurrentUserId) -> Eve
 
 @router.get("/organizer/events/{event_id}/dashboard")
 async def get_event_dashboard(
-        event_id: int,
-        organizer_id: CurrentUserId,
-        use_case: FromDishka[GetEventDashboardUseCase],
+    event_id: int,
+    organizer_id: CurrentUserId,
+    use_case: FromDishka[GetEventDashboardUseCase],
 ) -> EventDashboard:
     """Возвращает аналитические данные для дашборда по мероприятию."""
     dashboard = await use_case.execute(event_id=event_id, organizer_id=organizer_id)
@@ -114,6 +114,7 @@ async def get_event_dashboard(
         ),
     )
 
+
 @router.post("/events/{event_id}/checkout")
 async def prepare_checkout(
     event_id: int,
@@ -122,9 +123,11 @@ async def prepare_checkout(
     use_case: FromDishka[PrepareCheckoutUseCase],
 ) -> CheckoutResponse:
     """Временно бронирует места за клиентом, возвращает итоговую стоимость
-        и возможность страховки."""
+    и возможность страховки."""
 
-    checkout = await use_case.execute(event_id=event_id, seat_ids=payload.seat_ids, user_id=user_id)
+    checkout = await use_case.execute(
+        event_id=event_id, seat_ids=payload.seat_ids, user_id=user_id
+    )
 
     booking = checkout.booking
     event = checkout.event
@@ -158,7 +161,8 @@ async def prepare_checkout(
                 price=protection.price,
                 covered_amount=protection.covered_amount,
             )
-            if protection else None
+            if protection
+            else None
         ),
     )
 

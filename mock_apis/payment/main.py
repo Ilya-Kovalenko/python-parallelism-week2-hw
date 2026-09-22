@@ -42,7 +42,9 @@ async def calculate(payload: PaymentCalculation) -> dict:
         request_number = calculation_counter
 
     if request_number % 6 == 0:
-        raise HTTPException(status_code=429, detail="Слишком много запросов на расчет платежа")
+        raise HTTPException(
+            status_code=429, detail="Слишком много запросов на расчет платежа"
+        )
 
     commission = max(round(payload.amount * 0.03), 30)
     return {

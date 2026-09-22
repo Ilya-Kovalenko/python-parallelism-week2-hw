@@ -10,6 +10,7 @@ class AppConfig(BaseModel):
     protection_api_url: str
     booking_ttl_minutes: int
 
+
 class PostgresConfig(BaseModel):
     host: str
     port: int
@@ -28,6 +29,7 @@ class PostgresConfig(BaseModel):
             f"{self.password.get_secret_value()}"
             f"@{self.host}:{self.port}/{self.database}"
         )
+
 
 class RedisConfig(BaseModel):
     host: str

@@ -13,13 +13,16 @@ from app.infrastructure.postgres.repositories.base import BaseRepository
 
 
 class PostgresEventSeatsRepository(BaseRepository, EventSeatsRepository):
-    async def get_seats_for_reserve(self, event_id: int, seat_ids: Sequence[int]) -> Sequence[EventSeat]:
-        query = select(EventSeat).where(
-            and_(
-                EventSeat.event_id == event_id,
-                EventSeat.seat_id.in_(seat_ids)
+    async def get_seats_for_reserve(
+        self, event_id: int, seat_ids: Sequence[int]
+    ) -> Sequence[EventSeat]:
+        query = (
+            select(EventSeat)
+            .where(
+                and_(EventSeat.event_id == event_id, EventSeat.seat_id.in_(seat_ids))
             )
-        ).with_for_update(nowait=True)
+            .with_for_update(nowait=True)
+        )
 
         try:
             event_seats = (await self.session.scalars(query)).all()
@@ -43,7 +46,7 @@ class PostgresEventSeatsRepository(BaseRepository, EventSeatsRepository):
                 .values(
                     status=seat.status,
                     booking_id=seat.booking_id,
-                    reserved_until=seat.reserved_until
+                    reserved_until=seat.reserved_until,
                 )
             )
 
@@ -69,7 +72,9 @@ class PostgresEventSeatsRepository(BaseRepository, EventSeatsRepository):
             available=available,
             reserved=reserved,
             sold=sold,
-            occupancy_percent=round((reserved + sold) / total * 100, 2) if total else 0.0,
+            occupancy_percent=round((reserved + sold) / total * 100, 2)
+            if total
+            else 0.0,
         )
 
     @staticmethod
@@ -81,5 +86,5 @@ class PostgresEventSeatsRepository(BaseRepository, EventSeatsRepository):
             price=event_seat.price,
             status=event_seat.status,
             reserved_until=event_seat.reserved_until,
-            booking_id=event_seat.booking_id
+            booking_id=event_seat.booking_id,
         )

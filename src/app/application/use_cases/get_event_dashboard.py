@@ -17,16 +17,16 @@ class GetEventDashboardUseCase:
             event = await db.event_repository.get_event(event_id=event_id)
 
             if event.organizer_id != organizer_id:
-                raise EventAccessDeniedError(event_id=event_id, organizer_id=organizer_id)
+                raise EventAccessDeniedError(
+                    event_id=event_id, organizer_id=organizer_id
+                )
 
         async with asyncio.TaskGroup() as tg:
             sales_task = tg.create_task(self._load_sales(event_id))
             occupancy_task = tg.create_task(self._load_occupancy(event_id))
 
         return EventDashboard(
-            event=event,
-            sales=sales_task.result(),
-            occupancy=occupancy_task.result()
+            event=event, sales=sales_task.result(), occupancy=occupancy_task.result()
         )
 
     async def _load_sales(self, event_id: int) -> SalesStats:

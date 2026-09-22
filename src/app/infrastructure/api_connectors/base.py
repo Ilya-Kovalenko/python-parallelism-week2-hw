@@ -33,7 +33,9 @@ class BaseHTTPConnector:
         rate_limit_interval: float | None = None,
         retry_count: int = 3,
     ) -> None:
-        self._client = httpx.AsyncClient(base_url=base_url, headers=headers, timeout=timeout)
+        self._client = httpx.AsyncClient(
+            base_url=base_url, headers=headers, timeout=timeout
+        )
         self._rate_limiter = (
             RateLimiter(rate_limit_requests, rate_limit_interval)
             if rate_limit_requests is not None and rate_limit_interval is not None
@@ -64,7 +66,10 @@ class BaseHTTPConnector:
                 if attempt == attempts:
                     raise
             else:
-                if response.status_code not in _RETRYABLE_STATUSES or attempt == attempts:
+                if (
+                    response.status_code not in _RETRYABLE_STATUSES
+                    or attempt == attempts
+                ):
                     return response
 
             await self._exponential_backoff_sleep(attempt)
@@ -73,7 +78,7 @@ class BaseHTTPConnector:
 
     @staticmethod
     async def _exponential_backoff_sleep(attempt: int) -> None:
-        exponential_delay = 0.5 * 2 ** attempt
+        exponential_delay = 0.5 * 2**attempt
         jitter = random.uniform(0.1, 0.5)
 
         await asyncio.sleep(exponential_delay + jitter)

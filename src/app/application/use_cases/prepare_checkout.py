@@ -2,7 +2,9 @@ import asyncio
 
 from app.application.interfaces.unit_of_work import DatabaseManager
 from app.application.interfaces.connectors.payment_connector import PaymentConnector
-from app.application.interfaces.connectors.protection_connector import ProtectionConnector
+from app.application.interfaces.connectors.protection_connector import (
+    ProtectionConnector,
+)
 from app.application.dto import Checkout, Protection
 from datetime import datetime, UTC, timedelta
 
@@ -15,24 +17,35 @@ class PrepareCheckoutUseCase:
         db: DatabaseManager,
         payment_connector: PaymentConnector,
         protection_connector: ProtectionConnector,
-
     ) -> None:
         self.db = db
         self.payment_connector = payment_connector
         self.protection_connector = protection_connector
 
-    async def execute(self, event_id: int, seat_ids: list[int], user_id: int) -> Checkout:
+    async def execute(
+        self, event_id: int, seat_ids: list[int], user_id: int
+    ) -> Checkout:
         reserved_until = datetime.now(UTC) + timedelta(minutes=15)
 
         async with self.db.transaction() as db:
-            seats = await db.event_seats_repository.get_seats_for_reserve(event_id=event_id, seat_ids=seat_ids)
-            booking = await db.booking_repository.create_booking(event_id=event_id, user_id=user_id, reserved_until=reserved_until)
+            seats = await db.event_seats_repository.get_seats_for_reserve(
+                event_id=event_id, seat_ids=seat_ids
+            )
+            booking = await db.booking_repository.create_booking(
+                event_id=event_id, user_id=user_id, reserved_until=reserved_until
+            )
             event = await db.event_repository.get_event(event_id=event_id)
 
             amount = sum(seat.price for seat in seats)
 
-            payment_task = asyncio.create_task(self.payment_connector.get_payment(booking_id=booking.id, amount=amount, currency="RUB"))
-            protection_task = asyncio.create_task(self._get_protection(booking, event, len(seats)))
+            payment_task = asyncio.create_task(
+                self.payment_connector.get_payment(
+                    booking_id=booking.id, amount=amount, currency="RUB"
+                )
+            )
+            protection_task = asyncio.create_task(
+                self._get_protection(booking, event, len(seats))
+            )
 
             payment = await payment_task
             protection: Protection | None = await protection_task
@@ -62,10 +75,10 @@ class PrepareCheckoutUseCase:
         try:
             async with asyncio.timeout(3):
                 return await self.protection_connector.get_protection_availability(
-            booking_id=booking.id,
-            ticket_amount=ticket_amount,
-            event_category=event.category,
-            event_starts_at=event.starts_at
-        )
+                    booking_id=booking.id,
+                    ticket_amount=ticket_amount,
+                    event_category=event.category,
+                    event_starts_at=event.starts_at,
+                )
         except TimeoutError:
             return None

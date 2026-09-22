@@ -18,11 +18,11 @@ class Booking:
     reserved_until: datetime
 
     def apply_pricing(
-            self,
-            amount: int,
-            payment_commission: int,
-            protection_price: int | None,
-            with_protection: bool,
+        self,
+        amount: int,
+        payment_commission: int,
+        protection_price: int | None,
+        with_protection: bool,
     ) -> None:
         if amount < 0:
             raise ValueError("Сумма бронирования не может быть негативной")
@@ -31,9 +31,7 @@ class Booking:
             raise ValueError("Комиссия не может быть негативной")
 
         if with_protection and protection_price is None:
-            raise ValueError(
-                "protection_price обязателен когда with_protection=True"
-            )
+            raise ValueError("protection_price обязателен когда with_protection=True")
 
         if not with_protection:
             protection_price = None
@@ -45,10 +43,7 @@ class Booking:
 
     def mark_paid(self, *, now: datetime) -> None:
         if self.status is not BookingStatus.PENDING_PAYMENT:
-            raise InvalidBookingStateError(
-                booking_id=self.id,
-                status=self.status
-            )
+            raise InvalidBookingStateError(booking_id=self.id, status=self.status)
 
         if self.reserved_until <= now:
             raise BookingExpiredError(booking_id=self.id)

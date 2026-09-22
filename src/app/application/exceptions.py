@@ -32,4 +32,6 @@ class EventAccessDeniedError(ApplicationError):
     def __init__(self, event_id: int, organizer_id: int) -> None:
         self.event_id = event_id
         self.organizer_id = organizer_id
-        super().__init__(f"Пользователь {organizer_id} не является организатором мероприятия {event_id}")
+        super().__init__(
+            f"Пользователь {organizer_id} не является организатором мероприятия {event_id}"
+        )

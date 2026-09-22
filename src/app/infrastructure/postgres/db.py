@@ -1,13 +1,3 @@
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
-
-from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
-
 from app.config import PostgresConfig
 
 
@@ -22,8 +12,16 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from app.application.interfaces.unit_of_work import DatabaseManager, UnitOfWork
-from app.application.interfaces.repositories import BookingRepository, EventRepository, EventSeatsRepository
-from app.infrastructure.postgres.repositories import PostgresBookingRepository, PostgresEventRepository, PostgresEventSeatsRepository
+from app.application.interfaces.repositories import (
+    BookingRepository,
+    EventRepository,
+    EventSeatsRepository,
+)
+from app.infrastructure.postgres.repositories import (
+    PostgresBookingRepository,
+    PostgresEventRepository,
+    PostgresEventSeatsRepository,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,12 +46,16 @@ class SqlAlchemyDatabaseManager(DatabaseManager):
         )
 
     @asynccontextmanager
-    async def session(self) -> AsyncIterator[AsyncSession]:  # TODO: убрать если не нужно. Здесь просто создаём сессию, за коммит отвечает вызывающий код
+    async def session(
+        self,
+    ) -> AsyncIterator[AsyncSession]:
         async with self._session_factory() as session:
             yield session
 
     @asynccontextmanager
-    async def transaction(self) -> AsyncIterator[UnitOfWork]:  # TODO: а тут конкретная транзакция и полный её откат при ошибке
+    async def transaction(
+        self,
+    ) -> AsyncIterator[UnitOfWork]:
         async with self._session_factory.begin() as session:
             yield SqlAlchemyUnitOfWork(
                 booking_repository=PostgresBookingRepository(session),

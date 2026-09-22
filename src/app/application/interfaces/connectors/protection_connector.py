@@ -10,6 +10,5 @@ class ProtectionConnector(ABC):
         booking_id: int,
         ticket_amount: int,
         event_category: str,
-        event_starts_at: datetime
-    ) -> Protection:
-        ...
+        event_starts_at: datetime,
+    ) -> Protection: ...

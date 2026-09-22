@@ -9,5 +9,4 @@ class PaymentConnector(ABC):
         booking_id: int,
         amount: int,
         currency: str,
-    ) -> Payment:
-        ...
+    ) -> Payment: ...

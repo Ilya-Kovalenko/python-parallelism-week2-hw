@@ -5,7 +5,10 @@ from app.application.interfaces.connectors import ProtectionConnector, PaymentCo
 from app.application.use_cases import PrepareCheckoutUseCase, GetEventDashboardUseCase
 from app.config import PostgresConfig, Settings, AppConfig, ConnectorsConfig
 from app.infrastructure.postgres.db import SqlAlchemyDatabaseManager
-from app.infrastructure.api_connectors import HttpxPaymentConnector, HttpxProtectionConnector
+from app.infrastructure.api_connectors import (
+    HttpxPaymentConnector,
+    HttpxProtectionConnector,
+)
 
 from dishka import Provider, Scope, make_async_container, provide, from_context, alias
 from dishka.integrations.fastapi import FastapiProvider
@@ -29,7 +32,9 @@ class ConfigProvider(Provider):
 
 class PostgresProvider(Provider):
     @provide(scope=Scope.APP)
-    async def database(self, config: PostgresConfig) -> AsyncIterator[SqlAlchemyDatabaseManager]:
+    async def database(
+        self, config: PostgresConfig
+    ) -> AsyncIterator[SqlAlchemyDatabaseManager]:
         db = SqlAlchemyDatabaseManager(config)
         yield db
         await db.close()
@@ -80,13 +85,13 @@ class UseCaseProvider(Provider):
         return PrepareCheckoutUseCase(
             db=db,
             payment_connector=payment_connector,
-            protection_connector=protection_connector
+            protection_connector=protection_connector,
         )
 
     @provide(scope=Scope.REQUEST)
     def get_event_dashboard_use_case(
-            self,
-            db: DatabaseManager,
+        self,
+        db: DatabaseManager,
     ) -> GetEventDashboardUseCase:
         return GetEventDashboardUseCase(db=db)
 
@@ -98,5 +103,5 @@ def create_container(settings: Settings):
         ConnectorProvider(),
         UseCaseProvider(),
         FastapiProvider(),
-        context={Settings: settings}
+        context={Settings: settings},
     )

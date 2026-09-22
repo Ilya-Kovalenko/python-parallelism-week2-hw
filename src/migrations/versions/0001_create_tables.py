@@ -44,13 +44,17 @@ def upgrade() -> None:
     op.create_table(
         "seats",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("location_id", sa.Integer(), sa.ForeignKey("locations.id"), nullable=False),
+        sa.Column(
+            "location_id", sa.Integer(), sa.ForeignKey("locations.id"), nullable=False
+        ),
         sa.Column("sector", sa.String(80), nullable=False),
         sa.Column("row", sa.Integer(), nullable=False),
         sa.Column("number", sa.Integer(), nullable=False),
         sa.Column("x", sa.Integer(), nullable=False),
         sa.Column("y", sa.Integer(), nullable=False),
-        sa.UniqueConstraint("location_id", "sector", "row", "number", name="uq_seat_position"),
+        sa.UniqueConstraint(
+            "location_id", "sector", "row", "number", name="uq_seat_position"
+        ),
     )
     op.create_index("ix_seats_location_id", "seats", ["location_id"])
     op.create_index("ix_seats_sector", "seats", ["sector"])
@@ -59,7 +63,9 @@ def upgrade() -> None:
         "events",
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("organizer_id", sa.Integer(), nullable=False),
-        sa.Column("location_id", sa.Integer(), sa.ForeignKey("locations.id"), nullable=False),
+        sa.Column(
+            "location_id", sa.Integer(), sa.ForeignKey("locations.id"), nullable=False
+        ),
         sa.Column("title", sa.String(255), nullable=False),
         sa.Column("description", sa.String(2000), nullable=True),
         sa.Column("category", sa.String(100), nullable=False),
@@ -79,7 +85,9 @@ def upgrade() -> None:
         sa.Column("payment_commission", sa.Integer(), nullable=False),
         sa.Column("protection_price", sa.Integer(), nullable=True),
         sa.Column("with_protection", sa.Boolean(), nullable=False),
-        sa.Column("status", booking_status, server_default="pending_payment", nullable=False),
+        sa.Column(
+            "status", booking_status, server_default="pending_payment", nullable=False
+        ),
         sa.Column("reserved_until", sa.DateTime(), nullable=False),
     )
     op.create_index("ix_bookings_event_id", "bookings", ["event_id"])
@@ -95,7 +103,9 @@ def upgrade() -> None:
         sa.Column("price", sa.Integer(), nullable=False),
         sa.Column("status", seat_status, server_default="available", nullable=False),
         sa.Column("reserved_until", sa.DateTime(), nullable=True),
-        sa.Column("booking_id", sa.Integer(), sa.ForeignKey("bookings.id"), nullable=True),
+        sa.Column(
+            "booking_id", sa.Integer(), sa.ForeignKey("bookings.id"), nullable=True
+        ),
         sa.UniqueConstraint("event_id", "seat_id", name="uq_event_seat"),
     )
     op.create_index("ix_event_seats_event_id", "event_seats", ["event_id"])
