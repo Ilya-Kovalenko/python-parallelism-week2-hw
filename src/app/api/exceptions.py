@@ -6,6 +6,7 @@ from app.application.exceptions import (
     BookingNotFoundError,
     EventAccessDeniedError,
     EventNotFoundError,
+    ExternalServiceUnavailableError,
     SeatNotFoundError,
     SeatReservationInProgressError,
 )
@@ -33,6 +34,10 @@ ERROR_RESPONSES: dict[type[Exception], tuple[int, str]] = {
     EventAccessDeniedError: (
         status.HTTP_403_FORBIDDEN,
         "Вы не являетесь организатором этого мероприятия",
+    ),
+    ExternalServiceUnavailableError: (
+        status.HTTP_503_SERVICE_UNAVAILABLE,
+        "Внешний сервис временно недоступен, попробуйте позже",
     ),
     SeatReservationInProgressError: (
         status.HTTP_409_CONFLICT,

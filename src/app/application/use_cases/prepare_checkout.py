@@ -1,5 +1,6 @@
 import asyncio
 
+from app.application.exceptions import ProtectionServiceUnavailableError
 from app.application.interfaces.unit_of_work import DatabaseManager
 from app.application.interfaces.connectors.payment_connector import PaymentConnector
 from app.application.interfaces.connectors.protection_connector import (
@@ -80,5 +81,5 @@ class PrepareCheckoutUseCase:
                     event_category=event.category,
                     event_starts_at=event.starts_at,
                 )
-        except TimeoutError:
+        except (TimeoutError, ProtectionServiceUnavailableError):
             return None

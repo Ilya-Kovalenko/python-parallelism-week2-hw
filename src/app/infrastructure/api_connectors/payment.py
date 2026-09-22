@@ -1,9 +1,13 @@
-from app.infrastructure.api_connectors.base import BaseHTTPConnector
-from app.application.interfaces.connectors.payment_connector import (
-    PaymentConnector,
-    Payment,
-)
 from datetime import datetime
+
+import httpx
+
+from app.application.exceptions import PaymentServiceUnavailableError
+from app.application.interfaces.connectors.payment_connector import (
+    Payment,
+    PaymentConnector,
+)
+from app.infrastructure.api_connectors.base import BaseHTTPConnector
 
 
 class HttpxPaymentConnector(BaseHTTPConnector, PaymentConnector):
@@ -13,16 +17,24 @@ class HttpxPaymentConnector(BaseHTTPConnector, PaymentConnector):
         amount: int,
         currency: str,
     ) -> Payment:
-        response = await self._request(
-            "POST",
-            "/payment/calculate",
-            json={
-                "booking_id": booking_id,
-                "amount": amount,
-                "currency": currency,
-            },
-        )
-        response.raise_for_status()
+        try:
+            response = await self._request(
+                "POST",
+                "/payment/calculate",
+                retry=True,
+                json={
+                    "booking_id": booking_id,
+                    "amount": amount,
+                    "currency": currency,
+                },
+            )
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            raise PaymentServiceUnavailableError(
+                f"HTTP {exc.response.status_code}"
+            ) from exc
+        except httpx.TransportError as exc:
+            raise PaymentServiceUnavailableError(type(exc).__name__) from exc
 
         data = response.json()
         expires_at_raw = data.get("expires_at")
