@@ -8,6 +8,7 @@ class SeatStatus(str, enum.Enum):
 
 
 class BookingStatus(str, enum.Enum):
+    PREPARING = "preparing"
     PENDING_PAYMENT = "pending_payment"
     PAID = "paid"
     CANCELLED = "cancelled"

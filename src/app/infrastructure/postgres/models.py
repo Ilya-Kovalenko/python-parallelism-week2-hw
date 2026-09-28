@@ -83,8 +83,8 @@ class Booking(Base):
     with_protection: Mapped[bool]
     status: Mapped[BookingStatus] = mapped_column(
         SAEnum(BookingStatus, name="booking_status", values_callable=_enum_values),
-        default=BookingStatus.PENDING_PAYMENT,
-        server_default=BookingStatus.PENDING_PAYMENT.value,
+        default=BookingStatus.PREPARING,
+        server_default=BookingStatus.PREPARING.value,
         index=True,
     )
     reserved_until: Mapped[datetime] = mapped_column(DateTime(), index=True)

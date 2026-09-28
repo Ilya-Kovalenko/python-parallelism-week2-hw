@@ -12,6 +12,11 @@ class EventSeatsRepository(ABC):
     ) -> Sequence[EventSeat]: ...
 
     @abstractmethod
+    async def get_seats_for_update(
+        self, booking_id: int
+    ) -> Sequence[EventSeat]: ...
+
+    @abstractmethod
     async def save_many(self, seats: Sequence[EventSeat]) -> None: ...
 
     @abstractmethod

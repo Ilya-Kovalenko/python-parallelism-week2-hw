@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, UTC
 
 from app.domain.enums import BookingStatus
 from app.domain.exceptions import BookingExpiredError, InvalidBookingStateError
@@ -24,6 +24,12 @@ class Booking:
         protection_price: int | None,
         with_protection: bool,
     ) -> None:
+        if self.status != BookingStatus.PREPARING:
+            raise InvalidBookingStateError(booking_id=self.id, status=self.status)
+
+        if self.reserved_until <= datetime.now(UTC):
+            raise BookingExpiredError(booking_id=self.id)
+
         if amount < 0:
             raise ValueError("Сумма бронирования не может быть негативной")
 
@@ -40,6 +46,7 @@ class Booking:
         self.payment_commission = payment_commission
         self.protection_price = protection_price
         self.with_protection = with_protection
+        self.status = BookingStatus.PENDING_PAYMENT
 
     def mark_paid(self, *, now: datetime) -> None:
         if self.status is not BookingStatus.PENDING_PAYMENT:

@@ -1,5 +1,6 @@
 from sqlalchemy import select, update, func
 
+
 from datetime import datetime
 
 from app.application.exceptions import BookingNotFoundError
@@ -12,12 +13,12 @@ from app.application.dto import SalesStats
 
 class PostgresBookingRepository(BaseRepository, BookingRepository):
     async def create_booking(
-        self, event_id: int, user_id: int, reserved_until: datetime
+        self, event_id: int, user_id: int, amount: int, reserved_until: datetime
     ) -> BookingEntity:
         booking = Booking(
             event_id=event_id,
             user_id=user_id,
-            amount=0,
+            amount=amount,
             payment_commission=0,
             protection_price=None,
             with_protection=False,
@@ -26,6 +27,16 @@ class PostgresBookingRepository(BaseRepository, BookingRepository):
 
         self.session.add(booking)
         await self.session.flush()
+
+        return self._to_domain(booking)
+
+    async def get_for_update(self, booking_id: int) -> BookingEntity:
+        query = select(Booking).where(Booking.id == booking_id).with_for_update()
+
+        booking = (await self.session.scalars(query)).one_or_none()
+
+        if booking is None:
+            raise BookingNotFoundError(booking_id)
 
         return self._to_domain(booking)
 

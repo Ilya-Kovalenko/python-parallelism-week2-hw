@@ -19,7 +19,11 @@ class PostgresEventSeatsRepository(BaseRepository, EventSeatsRepository):
         query = (
             select(EventSeat)
             .where(
-                and_(EventSeat.event_id == event_id, EventSeat.seat_id.in_(seat_ids))
+                and_(
+                    EventSeat.event_id == event_id,
+                    EventSeat.seat_id.in_(seat_ids),
+                    EventSeat.status == SeatStatus.AVAILABLE,
+                )
             )
             .with_for_update(nowait=True)
         )
@@ -35,6 +39,24 @@ class PostgresEventSeatsRepository(BaseRepository, EventSeatsRepository):
         missing = set(seat_ids) - {seat.seat_id for seat in event_seats}
         if missing:
             raise SeatNotFoundError(event_id=event_id, seat_ids=sorted(missing))
+
+        return [self._to_domain(seat) for seat in event_seats]
+
+    async def get_seats_for_update(
+        self, booking_id: int
+    ) -> Sequence[EventSeat]:
+        query = (
+            select(EventSeat)
+            .where(
+                and_(
+                    EventSeat.booking_id == booking_id,
+                    EventSeat.status == SeatStatus.RESERVED,
+                )
+            )
+            .with_for_update()
+        )
+
+        event_seats = (await self.session.scalars(query)).all()
 
         return [self._to_domain(seat) for seat in event_seats]
 
